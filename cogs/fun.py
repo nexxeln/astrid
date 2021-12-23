@@ -79,6 +79,52 @@ class Fun(commands.Cog):
                         embed = discord.Embed(description=f"**{author.display_name}** hugs **{member.display_name}**!", colour=discord.Colour.random())
                         embed.set_image(url=gif_url)
                         await ctx.respond(embed=embed)
+    
+    @slash_command(guild_ids=[918349390995914792], description="Wink at another member!")
+    async def wink(self, ctx, member: Option(discord.Member, "Mention a member", required=False, default=None)):
+        if not member:
+            member = ctx.author
+            async with aiohttp.ClientSession() as cs:
+                async with cs.get("https://some-random-api.ml/animu/wink") as r:
+                    data = await r.json()
+                    gif_url = data["link"]
+
+                    embed = discord.Embed(description=f"**{member.display_name}** is winking", colour=discord.Colour.random())
+                    embed.set_image(url=gif_url)
+                    await ctx.respond(embed=embed)
+        else:            
+            author = ctx.author
+            async with aiohttp.ClientSession() as cs:
+                    async with cs.get("https://some-random-api.ml/animu/wink") as r:
+                        data = await r.json()
+                        gif_url = data["link"]
+
+                        embed = discord.Embed(description=f"**{author.display_name}** winks at **{member.display_name}**", colour=discord.Colour.random())
+                        embed.set_image(url=gif_url)
+                        await ctx.respond(embed=embed)
+    
+    @slash_command(guild_ids=[918349390995914792], description="Pat another member!")
+    async def pat(self, ctx, member: Option(discord.Member, "Mention a member", required=False, default=None)):
+        if not member:
+            member = ctx.author
+            async with aiohttp.ClientSession() as cs:
+                async with cs.get("https://some-random-api.ml/animu/pat") as r:
+                    data = await r.json()
+                    gif_url = data["link"]
+
+                    embed = discord.Embed(description=f"Here's a pat for you **{member.display_name}**", colour=discord.Colour.random())
+                    embed.set_image(url=gif_url)
+                    await ctx.respond(embed=embed)
+        else:            
+            author = ctx.author
+            async with aiohttp.ClientSession() as cs:
+                    async with cs.get("https://some-random-api.ml/animu/pat") as r:
+                        data = await r.json()
+                        gif_url = data["link"]
+
+                        embed = discord.Embed(description=f"**{author.display_name}** pats **{member.display_name}**", colour=discord.Colour.random())
+                        embed.set_image(url=gif_url)
+                        await ctx.respond(embed=embed)
 
 def setup(bot):
     bot.add_cog(Fun(bot))
