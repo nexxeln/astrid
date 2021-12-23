@@ -1,7 +1,9 @@
 import discord
-from discord import emoji
+import aiohttp
 from discord.ext import commands
 from discord.commands import slash_command, Option
+from PIL import Image, ImageFilter
+from io import BytesIO
 
 class Fun(commands.Cog):
     def __init__(self, bot):
@@ -33,6 +35,50 @@ class Fun(commands.Cog):
 
         await ctx.respond("".join(emojis))
 
+    @slash_command(guild_ids=[918349390995914792], description="RIP")
+    async def rip(self, ctx, member: Option(str, "Mention a member", required=False, default=None)):
+        if not member:
+            member = ctx.author
+
+        rip = Image.open("rip.jpg")
+        asset = member.avatar_url_as(size=128)
+        data = BytesIO(await asset.read)
+        pfp = Image.open(data)
+
+        pfp = pfp.resize((83, 88))
+
+        rip.paste(pfp, (56, 109))
+
+        rip.save("prip.jpg")
+
+        file = discord.File("prip.jpg")
+        embed = discord.Embed(title=f"RIP {member.mention}:skull_crossbones:")
+        embed.set_image(url="attachement://prip.jpg")
+        embed.set_footer(icon_url = ctx.author.avatar.url, text = f"Buried by {ctx.author.name} :skull:")
+        await ctx.respond(file=file, embed=embed)
+
+    @slash_command(guild_ids=[918349390995914792], description="Hug another member!")
+    async def hug(self, ctx, member: Option(discord.Member, "Mention a member", required=False, default=None)):
+        if not member:
+            member = ctx.author
+            async with aiohttp.ClientSession() as cs:
+                async with cs.get("https://some-random-api.ml/animu/hug") as r:
+                    data = await r.json()
+                    gif_url = data["link"]
+
+                    embed = discord.Embed(description=f"Here's a hug for you **{member.display_name}**!", colour=discord.Colour.random())
+                    embed.set_image(url=gif_url)
+                    await ctx.respond(embed=embed)
+        else:            
+            author = ctx.author
+            async with aiohttp.ClientSession() as cs:
+                    async with cs.get("https://some-random-api.ml/animu/hug") as r:
+                        data = await r.json()
+                        gif_url = data["link"]
+
+                        embed = discord.Embed(description=f"**{author.display_name}** hugs **{member.display_name}**!", colour=discord.Colour.random())
+                        embed.set_image(url=gif_url)
+                        await ctx.respond(embed=embed)
 
 def setup(bot):
     bot.add_cog(Fun(bot))
