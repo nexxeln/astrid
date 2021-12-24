@@ -1,5 +1,7 @@
 import discord
+import requests
 import aiohttp
+from settings import API_NINJAS_KEY
 from discord.ext import commands
 from discord.commands import slash_command, Option
 from PIL import Image, ImageFilter
@@ -125,6 +127,19 @@ class Fun(commands.Cog):
                         embed = discord.Embed(description=f"**{author.display_name}** pats **{member.display_name}**", colour=discord.Colour.random())
                         embed.set_image(url=gif_url)
                         await ctx.respond(embed=embed)
+
+    @slash_command(guild_ids=[918349390995914792], description="Random fact")
+    async def fact(self, ctx):
+        api_url = f"https://api.api-ninjas.com/v1/facts?limit=1"
+        response = requests.get(api_url, headers={'X-Api-Key': API_NINJAS_KEY})
+        if response.status_code in range(200, 299):
+            response = response.json()
+            fact = response[0]["fact"]
+            embed = discord.Embed(title="**Did you know?**", description=f"`{fact}`", colour=discord.Colour.random())
+            await ctx.respond(embed=embed)
+        
+        else:
+            await ctx.respond("Something went wrong. Please try again.")
 
 def setup(bot):
     bot.add_cog(Fun(bot))

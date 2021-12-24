@@ -1,13 +1,11 @@
 import discord
-from discord import colour
 import pypokedex
 import requests
 import json
 from PIL import Image
 from discord.ext import commands
 from discord.commands import slash_command, Option
-from settings import OPEN_WEATHER_MAP_KEY
-from pprint import pprint
+from settings import OPEN_WEATHER_MAP_KEY, API_NINJAS_KEY
 from datetime import datetime
 from discord.ui import Button, View
 
@@ -187,6 +185,57 @@ class Utilities(commands.Cog):
         else:
             embed = discord.Embed(description="Word not found. Please try again.", colour=discord.Colour.dark_theme())
             await ctx.respond(embed=embed)
+
+    @slash_command(guild_ids=[918349390995914792], description="Shows the air quality of a place")
+    async def aqi(self, ctx, city: Option(str, "Enter the name of the city", required=True, default="new york")):
+        api_url = f"https://api.api-ninjas.com/v1/airquality?city={city}"
+        response = requests.get(api_url, headers={"X-Api-Key": API_NINJAS_KEY})
+        button = Button(label="Learn more about AQI", style=discord.ButtonStyle.link, url=f"https://www.airnow.gov/aqi/aqi-basics/", emoji="ℹ️")
+        view = View(button)
+        city = city.title()
+        if response.status_code in range(200, 299):
+            response = response.json()
+            aqi = response["overall_aqi"]
+            print(aqi)
+            if (aqi > 0) and (aqi<=50):
+                embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Good**", colour=0x56f00e)
+                embed.add_field(name="AQI", value=str(aqi), inline=False)
+                embed.add_field(name="Description", value="Air quality is satisfactory, and air pollution poses little or no risk.")
+                await ctx.respond(embed=embed, view=view)
+
+            elif (aqi > 50) and (aqi <= 100):
+                embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Moderate**", colour=0xf7e307)
+                embed.add_field(name="AQI", value=str(aqi), inline=False)
+                embed.add_field(name="Description", value="Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.")
+                await ctx.respond(embed=embed, view=view)
+
+            elif (aqi > 100) and (aqi <= 150):
+                embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Unhealthy for Sensitive Groups**", colour=0xf2670a)
+                embed.add_field(name="AQI", value=str(aqi), inline=False)
+                embed.add_field(name="Description", value="Members of sensitive groups may experience health effects. The general public is less likely to be affected.")
+                await ctx.respond(embed=embed, view=view)
+
+            elif (aqi > 150) and (aqi <= 200):
+                embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Unhealthy**", colour=0xcf0606)
+                embed.add_field(name="AQI", value=str(aqi), inline=False)
+                embed.add_field(name="Description", value="Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects.")
+                await ctx.respond(embed=embed, view=view)
+            
+            elif (aqi > 200) and (aqi <= 300):
+                embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Very Unhealthy**", colour=0x8e05e3)
+                embed.add_field(name="AQI", value=str(aqi), inline=False)
+                embed.add_field(name="Description", value="Health alert: The risk of health effects is increased for everyone.")
+                await ctx.respond(embed=embed, view=view)
+
+            elif (aqi > 300):
+                embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Hazardous**", colour=0x800000)
+                embed.add_field(name="AQI", value=str(aqi), inline=False)
+                embed.add_field(name="Description", value="Health warning of emergency conditions: everyone is more likely to be affected.")
+                await ctx.respond(embed=embed, view=view)
+
+        else:
+            await ctx.respond("Something went wrong.")
+        
 
 def setup(bot):
     bot.add_cog(Utilities(bot))
