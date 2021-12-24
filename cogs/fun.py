@@ -37,27 +37,28 @@ class Fun(commands.Cog):
 
         await ctx.respond("".join(emojis))
 
-    @slash_command(guild_ids=[918349390995914792], description="RIP")
-    async def rip(self, ctx, member: Option(str, "Mention a member", required=False, default=None)):
-        if not member:
-            member = ctx.author
+    # @slash_command(guild_ids=[918349390995914792], description="RIP")
+    # async def rip(self, ctx, member: Option(discord.Member, "Mention a member", required=False, default=None)):
+    #     if not member:
+    #         member = ctx.author
 
-        rip = Image.open("rip.jpg")
-        asset = member.avatar_url_as(size=128)
-        data = BytesIO(await asset.read)
-        pfp = Image.open(data)
+    #     rip = Image.open("C:\\Users\\SOUMITRI\\Downloads\\rip.jpg")
+    #     asset = member.avatar_url_as(size=128)
+    #     data = BytesIO(await asset.read())
+    #     pfp = Image.open(data)
 
-        pfp = pfp.resize((83, 88))
+    #     pfp = pfp.resize((185, 184))
 
-        rip.paste(pfp, (56, 109))
+    #     rip.paste(pfp, (100, 244))
 
-        rip.save("prip.jpg")
+    #     rip.save("prip.jpg")
 
-        file = discord.File("prip.jpg")
-        embed = discord.Embed(title=f"RIP {member.mention}:skull_crossbones:")
-        embed.set_image(url="attachement://prip.jpg")
-        embed.set_footer(icon_url = ctx.author.avatar.url, text = f"Buried by {ctx.author.name} :skull:")
-        await ctx.respond(file=file, embed=embed)
+    #     file = discord.File("prip.jpg")
+    #     embed = discord.Embed(title=f"RIP {member.mention}:skull_crossbones:")
+    #     embed.set_image(url="attachement://prip.jpg")
+    #     embed.set_footer(icon_url = ctx.author.avatar.url, text = f"Buried by {ctx.author.name} :skull:")
+    #     await ctx.respond(file=file, embed=embed)
+    #     await ctx.respond(file=discord.File("prip.jpg"))
 
     @slash_command(guild_ids=[918349390995914792], description="Hug another member!")
     async def hug(self, ctx, member: Option(discord.Member, "Mention a member", required=False, default=None)):
