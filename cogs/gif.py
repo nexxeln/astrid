@@ -1,8 +1,5 @@
 import discord
-import random
-from discord import colour
 import giphy_client
-from pprint import pprint
 from giphy_client.rest import ApiException
 from discord.ext import commands
 from discord.commands import slash_command, Option
@@ -16,6 +13,7 @@ class Gif(commands.Cog):
     
     @slash_command(guild_ids=[918349390995914792], description="GIF-fy a phrase")
     async def giffy(self, ctx, phrase: Option(str, "Enter a phrase you want to GIF-fy", required=True, default="wtf")):
+        ctx.defer()
         api_key = GIPHY_API_KEY
         api_instance = giphy_client.DefaultApi()
 
