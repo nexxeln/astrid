@@ -1,6 +1,8 @@
 import discord
+from discord.types.embed import EmbedAuthor
 import pypokedex
 import requests
+import wikipedia
 import json
 from PIL import Image
 from discord.ext import commands
@@ -152,6 +154,7 @@ class Utilities(commands.Cog):
 
     @slash_command(guild_ids=[918349390995914792], description="Defines a word")
     async def dictionary(self, ctx, word: Option(str, "Enter the word", required=True, default="mask")):
+        await ctx.interaction.response.defer()
         button = Button(label="More info", style=discord.ButtonStyle.link, url=f"https://www.merriam-webster.com/dictionary/{word}", emoji="ℹ️")
         view = View(button)
 
@@ -180,7 +183,7 @@ class Utilities(commands.Cog):
                 embed.add_field(name="Usage", value=f"`{example}`", inline=False)
                 embed.add_field(name="Synonyms", value=f"`{synonyms}`", inline=False)
 
-            await ctx.respond(embed=embed, view=view)
+            await ctx.interaction.followup.send(embed=embed, view=view)
 
         else:
             embed = discord.Embed(description="Word not found. Please try again.", colour=discord.Colour.dark_theme())
@@ -188,6 +191,7 @@ class Utilities(commands.Cog):
 
     @slash_command(guild_ids=[918349390995914792], description="Shows the air quality of a place")
     async def aqi(self, ctx, city: Option(str, "Enter the name of the city", required=True, default="new york")):
+        await ctx.interaction.response.defer()
         api_url = f"https://api.api-ninjas.com/v1/airquality?city={city}"
         response = requests.get(api_url, headers={"X-Api-Key": API_NINJAS_KEY})
         button = Button(label="Learn more about AQI", style=discord.ButtonStyle.link, url=f"https://www.airnow.gov/aqi/aqi-basics/", emoji="ℹ️")
@@ -196,46 +200,70 @@ class Utilities(commands.Cog):
         if response.status_code in range(200, 299):
             response = response.json()
             aqi = response["overall_aqi"]
-            print(aqi)
             if (aqi > 0) and (aqi<=50):
                 embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Good**", colour=0x56f00e)
                 embed.add_field(name="AQI", value=str(aqi), inline=False)
                 embed.add_field(name="Description", value="Air quality is satisfactory, and air pollution poses little or no risk.")
-                await ctx.respond(embed=embed, view=view)
+                await ctx.interaction.followup.send(embed=embed, view=view)
 
             elif (aqi > 50) and (aqi <= 100):
                 embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Moderate**", colour=0xf7e307)
                 embed.add_field(name="AQI", value=str(aqi), inline=False)
                 embed.add_field(name="Description", value="Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.")
-                await ctx.respond(embed=embed, view=view)
+                await ctx.interaction.followup.send(embed=embed, view=view)
 
             elif (aqi > 100) and (aqi <= 150):
                 embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Unhealthy for Sensitive Groups**", colour=0xf2670a)
                 embed.add_field(name="AQI", value=str(aqi), inline=False)
                 embed.add_field(name="Description", value="Members of sensitive groups may experience health effects. The general public is less likely to be affected.")
-                await ctx.respond(embed=embed, view=view)
+                await ctx.interaction.followup.send(embed=embed, view=view)
 
             elif (aqi > 150) and (aqi <= 200):
                 embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Unhealthy**", colour=0xcf0606)
                 embed.add_field(name="AQI", value=str(aqi), inline=False)
                 embed.add_field(name="Description", value="Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects.")
-                await ctx.respond(embed=embed, view=view)
+                await ctx.interaction.followup.send(embed=embed, view=view)
             
             elif (aqi > 200) and (aqi <= 300):
                 embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Very Unhealthy**", colour=0x8e05e3)
                 embed.add_field(name="AQI", value=str(aqi), inline=False)
                 embed.add_field(name="Description", value="Health alert: The risk of health effects is increased for everyone.")
-                await ctx.respond(embed=embed, view=view)
+                await ctx.interaction.followup.send(embed=embed, view=view)
 
             elif (aqi > 300):
                 embed = discord.Embed(title=f"Air Quality in {city}", description="Level of concern: **Hazardous**", colour=0x800000)
                 embed.add_field(name="AQI", value=str(aqi), inline=False)
                 embed.add_field(name="Description", value="Health warning of emergency conditions: everyone is more likely to be affected.")
-                await ctx.respond(embed=embed, view=view)
+                await ctx.interaction.followup.send(embed=embed, view=view)
 
         else:
             await ctx.respond("Something went wrong.")
         
+    @slash_command(guild_ids=[918349390995914792], description="Get information about anything")
+    async def wiki(self, ctx, topic: Option(str, "Please be as specific as possible!", required=True, default="new york")):
+        await ctx.interaction.response.defer()
+        topic = topic.title()
+        try:
+            summary = wikipedia.summary(topic, sentences=3, auto_suggest=False)
+            page = wikipedia.page(topic, auto_suggest=False)
+
+            button = Button(label="More info", style=discord.ButtonStyle.link, url=page.url, emoji="ℹ️")
+            view = View(button)
+            
+            embed = discord.Embed(title=page.title, colour=ctx.author.colour)
+            embed.add_field(name="Summary", value=f"```{summary}```")
+            embed.set_thumbnail(url=page.images[0])
+            embed.set_footer(icon_url = ctx.author.avatar.url, text = f"Requested by {ctx.author.name} | Powered by Wikipedia")
+            await ctx.interaction.followup.send(embed=embed, view=view)
+
+        except wikipedia.exceptions.DisambiguationError as e:
+            await ctx.interaction.followup.send("Please be as specific as possible!")
+        
+        except wikipedia.exceptions.PageError as e:
+            await ctx.interaction.followup.send(f"{topic} does not match any pages. Try another query!")
+
+            
+
 
 def setup(bot):
     bot.add_cog(Utilities(bot))
