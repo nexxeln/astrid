@@ -175,13 +175,13 @@ class Utilities(commands.Cog):
             
             if example == ['None']:
                 embed = discord.Embed(title=f"{word.title()}", colour=discord.Colour.dark_theme())
-                embed.add_field(name="Definition", value=f"`{meaning}`", inline=False)
+                embed.add_field(name="Definition", value=f"```{meaning}```", inline=False)
                 embed.add_field(name="Synonyms", value=f"`{synonyms}`", inline=False)
             else:
                 embed = discord.Embed(title=f"{word.title()}", colour=discord.Colour.dark_theme())
-                embed.add_field(name="Definition", value=f"`{meaning}`", inline=False)
-                embed.add_field(name="Usage", value=f"`{example}`", inline=False)
-                embed.add_field(name="Synonyms", value=f"`{synonyms}`", inline=False)
+                embed.add_field(name="Definition", value=f"```{meaning}```", inline=False)
+                embed.add_field(name="Usage", value=f"```{example}```", inline=False)
+                embed.add_field(name="Synonyms", value=f"```{synonyms}```", inline=False)
 
             await ctx.interaction.followup.send(embed=embed, view=view)
 
@@ -261,8 +261,8 @@ class Utilities(commands.Cog):
         
         except wikipedia.exceptions.PageError as e:
             await ctx.interaction.followup.send(f"{topic} does not match any pages. Try another query!")
-
-            
+    
+    
 
 
 def setup(bot):
