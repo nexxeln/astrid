@@ -13,7 +13,7 @@ class Gif(commands.Cog):
     
     @slash_command(guild_ids=[918349390995914792], description="GIF-fy a phrase")
     async def giffy(self, ctx, phrase: Option(str, "Enter a phrase you want to GIF-fy", required=True, default="wtf")):
-        ctx.defer()
+        await ctx.interaction.response.defer()
         api_key = GIPHY_API_KEY
         api_instance = giphy_client.DefaultApi()
 
@@ -24,9 +24,9 @@ class Gif(commands.Cog):
             embed.set_image(url=f"https://media.giphy.com/media/{data.id}/giphy.gif")
             embed.set_footer(icon_url = ctx.author.avatar.url, text = f"Requested by {ctx.author.name} | Powered by GIPHY")
 
-            await ctx.respond(embed=embed)
+            await ctx.interaction.followup.send(embed=embed)
         except ApiException as e:
-            await ctx.respond("Something went wrong. Please try again.")
+            await ctx.interaction.followup.send("Something went wrong. Please try again.")
 
         
 def setup(bot):
