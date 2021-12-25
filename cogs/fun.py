@@ -142,5 +142,16 @@ class Fun(commands.Cog):
         else:
             await ctx.respond("Something went wrong. Please try again.")
 
+    @slash_command(guild_ids=[918349390995914792], description="Watch YouTube together with friends in a voice channel!")
+    async def watchtogether(self, ctx: commands.Context, channel: Option(discord.VoiceChannel, "Enter the name of the voice channel", required=False, default=None)):
+        """Watch youtube together with your friends!"""
+        if channel == None:
+            channel = ctx.author.voice.channel
+        try:
+            link = await channel.create_activity_invite(discord.enums.EmbeddedActivity.watch_together, unique = False)
+            await ctx.respond(f"Click the blue link!\n{link}")
+        except:
+            await ctx.respond("You need to be in a voice channel to play! \nOr specify a voice channel")
+
 def setup(bot):
     bot.add_cog(Fun(bot))
